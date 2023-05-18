@@ -1,0 +1,8 @@
+tokens_pipeline.annotators=tokenize,ssplit,pos
+tokens_pipeline.method=extractTokens
+
+lemmas_pipeline.annotators=tokenize,ssplit,pos,lemma
+lemmas_pipeline.method=extractLemmas
+
+nouns_pipeline.annotators=tokenize,ssplit,pos
+nouns_pipeline.method=extractNouns
