@@ -1,0 +1,70 @@
+import edu.stanford.nlp.pipeline.*;
+import edu.stanford.nlp.ling.*;
+import java.io.*;
+import java.util.*;
+
+public class MostFrequentWords {
+    public static void main(String[] args) {
+        String folderPath = "path/to/your/folder";
+        int topN = 10; // Numero di parole più frequenti da trovare
+
+        try {
+            Map<String, Integer> wordCounts = new HashMap<>();
+
+            File folder = new File(folderPath);
+            File[] files = folder.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) {
+                        String text = readFile(file.getAbsolutePath());
+                        Set<String> uniqueWords = new HashSet<>(Arrays.asList(text.split("\\s+")));
+
+                        for (String word : uniqueWords) {
+                            word = word.toLowerCase();
+                            int count = wordCounts.getOrDefault(word, 0);
+                            wordCounts.put(word, count + 1);
+                        }
+                    }
+                }
+            }
+
+            List<String> frequentWords = findMostFrequentWords(wordCounts, topN);
+
+            System.out.println("Le parole più frequenti nella cartella sono:");
+            for (String word : frequentWords) {
+                System.out.println(word);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String readFile(String filePath) throws IOException {
+        StringBuilder content = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            content.append(line).append(" ");
+        }
+        reader.close();
+        return content.toString();
+    }
+
+    public static List<String> findMostFrequentWords(Map<String, Integer> wordCounts, int topN) {
+        PriorityQueue<Map.Entry<String, Integer>> pq = new PriorityQueue<>(Comparator.comparingInt(Map.Entry::getValue));
+
+        for (Map.Entry<String, Integer> entry : wordCounts.entrySet()) {
+            pq.offer(entry);
+            if (pq.size() > topN) {
+                pq.poll();
+            }
+        }
+
+        List<String> frequentWords = new ArrayList<>();
+        while (!pq.isEmpty()) {
+            frequentWords.add(0, pq.poll().getKey());
+        }
+
+        return frequentWords;
+    }
+}
