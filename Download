@@ -1,0 +1,46 @@
+//Da usare i file di https://github.com/matarrese/content-api-the-guardian insieme a questa classe
+package com.apiguardian.bean;
+
+import com.apiguardian.GuardianContentApi;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import java.io.IOException;
+import java.io.*;
+import java.util.Arrays;
+import java.lang.String;
+import java.util.List;
+import org.apache.commons.csv.*;
+
+public class Download {
+    public Download() {}
+        public void DownloadFromApi(String key, String query) throws IOException {
+            GuardianContentApi api= new GuardianContentApi(key);
+            Response response= new Response();
+            int i=1; //variabile per numerare il numero di articoli nel file txt
+            try {
+                response = api.getContent(query);
+            } catch (UnirestException e) {
+                throw new RuntimeException(e);
+            }
+            Arrays.stream(response.getResults()).forEach(System.out::println);
+            int j=response.getTotal(); //serve a sapere quanti file trova, non so perche ma me ne scarica solo 10
+            System.out.println(j);
+            List<Article> articleList = Arrays.asList(response.getResults());
+            if (!articleList.isEmpty()) {
+                String path = "C:/Users/Alessandro/Desktop/DocProva.txt";
+                File file = new File(path);
+                try {
+                    FileWriter writer = new FileWriter(file);
+                    for (Article article : articleList) {
+                        writer.write(i +" Titolo:   " + article.webTitle + "\n");
+                        writer.write("Body: " + article.bodyText + "\n\n");
+                        i++;
+                    }
+                    writer.close();
+                    System.out.println("La lista di articoli è stata salvata in un file di testo");
+                } catch (IOException e) {
+                    System.out.println("Si è verificato un errore durante la scrittura del file di testo: " + e.getMessage());
+                }
+            } else {
+                System.out.println("La lista di articoli è vuota");
+            }
+        }
